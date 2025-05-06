@@ -1,13 +1,15 @@
 import { useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
+import { useAuthStore } from "../store/useAuthStore";
 import { Image, Send, X } from "lucide-react";
 import toast from "react-hot-toast";
 
-const MessageInput = () => {
+const MessageInput = ({ socket }) => {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
-  const { sendMessage } = useChatStore();
+  const { sendMessage, selectedUser } = useChatStore();
+  const { authUser } = useAuthStore();
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -33,10 +35,26 @@ const MessageInput = () => {
     if (!text.trim() && !imagePreview) return;
 
     try {
-      await sendMessage({
+      const messageData = {
         text: text.trim(),
         image: imagePreview,
-      });
+      };
+
+      // Send message to server
+      const newMessage = await sendMessage(messageData);
+
+      // Emit socket event if socket is available
+      if (socket?.current && selectedUser) {
+        socket.current.emit("send-msg", {
+          to: selectedUser._id,
+          from: authUser._id,
+          message: {
+            ...newMessage,
+            senderId: authUser._id,
+            receiverId: selectedUser._id,
+          },
+        });
+      }
 
       // Clear form
       setText("");
@@ -106,4 +124,5 @@ const MessageInput = () => {
     </div>
   );
 };
+
 export default MessageInput;

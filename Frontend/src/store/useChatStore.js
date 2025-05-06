@@ -32,36 +32,27 @@ export const useChatStore = create((set, get) => ({
       set({ isMessagesLoading: false });
     }
   },
+
   sendMessage: async (messageData) => {
     const { selectedUser, messages } = get();
     try {
       const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);
-      set({ messages: [...messages, res.data] });
+      const newMessage = res.data;
+      set({ messages: [...messages, newMessage] });
+      return newMessage; // Return the message for socket emission
     } catch (error) {
       toast.error(error.response.data.message);
+      throw error;
     }
   },
 
-//   subscribeToMessages: () => {
-//     const { selectedUser } = get();
-//     if (!selectedUser) return;
-
-//     const socket = useAuthStore.getState().socket;
-
-//     socket.on("newMessage", (newMessage) => {
-//       const isMessageSentFromSelectedUser = newMessage.senderId === selectedUser._id;
-//       if (!isMessageSentFromSelectedUser) return;
-
-//       set({
-//         messages: [...get().messages, newMessage],
-//       });
-//     });
-//   },
-
-//   unsubscribeFromMessages: () => {
-//     const socket = useAuthStore.getState().socket;
-//     socket.off("newMessage");
-//   },
+  addMessage: (message) => {
+    const { messages, selectedUser } = get();
+    // Only add if message is from selected user
+    if (selectedUser && message.senderId === selectedUser._id) {
+      set({ messages: [...messages, message] });
+    }
+  },
 
   setSelectedUser: (selectedUser) => set({ selectedUser }),
 }));

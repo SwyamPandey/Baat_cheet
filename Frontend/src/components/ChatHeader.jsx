@@ -1,10 +1,16 @@
 import { X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
+import { useStatusStore } from "../store/useStatusStore";
 
 const ChatHeader = () => {
   const { selectedUser, setSelectedUser } = useChatStore();
-  const { onlineUsers } = useAuthStore();
+  const { onlineUsers } = useStatusStore();
+
+  console.log(onlineUsers)
+  
+  const userStatus = onlineUsers.get(selectedUser?._id)?.status || 'offline';
+  const lastSeen = onlineUsers.get(selectedUser?._id)?.lastSeen;
 
   return (
     <div className="p-2.5 border-b border-base-300">
@@ -21,7 +27,7 @@ const ChatHeader = () => {
           <div>
             <h3 className="font-medium">{selectedUser.fullName}</h3>
             <p className="text-sm text-base-content/70">
-              {onlineUsers.includes(selectedUser._id) ? "Online" : "Offline"}
+              {userStatus}
             </p>
           </div>
         </div>
