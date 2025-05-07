@@ -46,7 +46,7 @@ const ChatContainer = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    socket.current = io("http://localhost:5001", {
+    socket.current = io(import.meta.env.VITE_API_URL, {
       withCredentials: true,
     });
 
