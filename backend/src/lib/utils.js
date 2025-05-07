@@ -12,7 +12,7 @@ export const generateToken = (userId, res) => {
         res.cookie("jwt", token, {
             path: "/",
             httpOnly: true,   // Make sure cookie is accessible only via HTTP requests
-            sameSite: "strict",
+            sameSite: "none",
             secure: process.env.NODE_ENV === "production", // Only use secure cookies in production
         });
     } catch (error) {
