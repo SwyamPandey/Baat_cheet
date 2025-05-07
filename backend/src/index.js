@@ -20,7 +20,7 @@ const httpServer = createServer(app);
 // Configure Socket.io
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.FRONTEND_URL,
     credentials: true,
   },
 });
